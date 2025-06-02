@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3><i class="fas fa-edit"></i> Edit Task: {{ task.title }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+                            {{ form.title }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.task_list.id_for_label }}" class="form-label">Task List</label>
+                            {{ form.task_list }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.due_date.id_for_label }}" class="form-label">Due Date</label>
+                            {{ form.due_date }}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.priority.id_for_label }}" class="form-label">Priority</label>
+                                    {{ form.priority }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.urgency.id_for_label }}" class="form-label">Urgency</label>
+                                    {{ form.urgency }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.importance.id_for_label }}" class="form-label">Importance</label>
+                                    {{ form.importance }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                                    {{ form.status }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.estimated_hours.id_for_label }}" class="form-label">Estimated Hours</label>
+                                    {{ form.estimated_hours }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.tags.id_for_label }}" class="form-label">Tags</label>
+                            {{ form.tags }}
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'dashboard' %}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Task
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i>
+                        Created: {{ task.created_at|date:"M d, Y H:i" }}
+                    </small>
+                    <small class="text-muted">
+                        AI Priority Score: {{ task.ai_priority_score|floatformat:1 }}/100
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

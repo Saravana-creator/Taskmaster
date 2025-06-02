@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Notion-like Page Header -->
+<div class="page-header">
+    <h1 class="page-title">⚙️ Settings</h1>
+    <p class="page-subtitle">Customize your TaskMaster experience and preferences.</p>
+</div>
+
+<!-- Page Content -->
+<div style="padding: 0 96px 96px 96px; max-width: 900px;">
+    
+    <!-- Account Settings -->
+    <div style="margin-bottom: 48px;">
+        <h2 style="font-size: 20px; font-weight: 600; color: #37352f; margin-bottom: 16px;">Account</h2>
+        
+        <div style="background: white; border: 1px solid #e9e9e7; border-radius: 8px; padding: 24px;">
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                <div style="width: 60px; height: 60px; border-radius: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: 600;">
+                    {{ user.username|first|upper }}
+                </div>
+                <div>
+                    <h3 style="font-size: 18px; font-weight: 600; color: #37352f; margin: 0 0 4px 0;">{{ user.username }}</h3>
+                    <p style="font-size: 14px; color: #787774; margin: 0;">{{ user.email }}</p>
+                </div>
+            </div>
+            
+            <div style="display: grid; gap: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px; align-items: center; padding: 12px; background: #f7f6f3; border-radius: 6px;">
+                    <label style="font-size: 14px; font-weight: 500; color: #37352f;">Username</label>
+                    <div style="font-size: 14px; color: #787774;">{{ user.username }}</div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px; align-items: center; padding: 12px; background: #f7f6f3; border-radius: 6px;">
+                    <label style="font-size: 14px; font-weight: 500; color: #37352f;">Email</label>
+                    <div style="font-size: 14px; color: #787774;">{{ user.email }}</div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px; align-items: center; padding: 12px; background: #f7f6f3; border-radius: 6px;">
+                    <label style="font-size: 14px; font-weight: 500; color: #37352f;">Member Since</label>
+                    <div style="font-size: 14px; color: #787774;">{{ user.date_joined|date:"F d, Y" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification Settings -->
+    <div style="margin-bottom: 48px;">
+        <h2 style="font-size: 20px; font-weight: 600; color: #37352f; margin-bottom: 16px;">Notifications</h2>
+        
+        <form method="POST" style="background: white; border: 1px solid #e9e9e7; border-radius: 8px; padding: 24px;">
+            {% csrf_token %}
+            
+            <div style="display: grid; gap: 20px;">
+                <!-- Email Notifications -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f7f6f3; border-radius: 6px;">
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 600; color: #37352f; margin: 0 0 4px 0;">Email Notifications</h3>
+                        <p style="font-size: 14px; color: #787774; margin: 0;">Receive email updates about your tasks and deadlines</p>
+                    </div>
+                    <label style="position: relative; display: inline-block; width: 50px; height: 24px;">
+                        <input type="checkbox" name="email_notifications" style="opacity: 0; width: 0; height: 0;">
+                        <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px;"></span>
+                        <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                    </label>
+                </div>
+                
+                <!-- Task Reminders -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f7f6f3; border-radius: 6px;">
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 600; color: #37352f; margin: 0 0 4px 0;">Task Reminders</h3>
+                        <p style="font-size: 14px; color: #787774; margin: 0;">Get reminded about upcoming due dates</p>
+                    </div>
+                    <label style="position: relative; display: inline-block; width: 50px; height: 24px;">
+                        <input type="checkbox" name="task_reminders" checked style="opacity: 0; width: 0; height: 0;">
+                        <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #37352f; transition: .4s; border-radius: 24px;"></span>
+                        <span style="position: absolute; content: ''; height: 18px; width: 18px; right: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                    </label>
+                </div>
+                
+                <!-- Weekly Summary -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f7f6f3; border-radius: 6px;">
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 600; color: #37352f; margin: 0 0 4px 0;">Weekly Summary</h3>
+                        <p style="font-size: 14px; color: #787774; margin: 0;">Receive a weekly productivity report</p>
+                    </div>
+                    <label style="position: relative; display: inline-block; width: 50px; height: 24px;">
+                        <input type="checkbox" name="weekly_summary" checked style="opacity: 0; width: 0; height: 0;">
+                        <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #37352f; transition: .4s; border-radius: 24px;"></span>
+                        <span style="position: absolute; content: ''; height: 18px; width: 18px; right: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e9e9e7;">
+                <button type="submit" style="background: #37352f; color: white; padding: 10px 20px; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer;">
+                    Save Notification Settings
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Preferences -->
+    <div style="margin-bottom: 48px;">
+        <h2 style="font-size: 20px; font-weight: 600; color: #37352f; margin-bottom: 16px;">Preferences</h2>
+        
+        <div style="background: white; border: 1px solid #e9e9e7; border-radius: 8px; padding: 24px;">
+            <div style="display: grid; gap: 20px;">
+                <!-- Default Task List -->
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px; align-items: center; padding: 16px; background: #f7f6f3; border-radius: 6px;">
+                    <label style="font-size: 14px; font-weight: 500; color: #37352f;">Default Task List</label>
+                    <select style="padding: 8px 12px; border: 1px solid #e9e9e7; border-radius: 6px; font-size: 14px; background: white;">
+                        <option>Personal</option>
+                        <option>Work</option>
+                        <option>Projects</option>
+                    </select>
+                </div>
+                
+                <!-- Default Priority -->
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px; align-items: center; padding: 16px; background: #f7f6f3; border-radius: 6px;">
+                    <label style="font-size: 14px; font-weight: 500; color: #37352f;">Default Priority</label>
+                    <select style="padding: 8px 12px; border: 1px solid #e9e9e7; border-radius: 6px; font-size: 14px; background: white;">
+                        <option>Medium</option>
+                        <option>Low</option>
+                        <option>High</option>
+                        <option>Critical</option>
+                    </select>
+                </div>
+                
+                <!-- Time Zone -->
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px; align-items: center; padding: 16px; background: #f7f6f3; border-radius: 6px;">
+                    <label style="font-size: 14px; font-weight: 500; color: #37352f;">Time Zone</label>
+                    <select style="padding: 8px 12px; border: 1px solid #e9e9e7; border-radius: 6px; font-size: 14px; background: white;">
+                        <option>UTC</option>
+                        <option>EST</option>
+                        <option>PST</option>
+                        <option>GMT</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Data & Privacy -->
+    <div style="margin-bottom: 48px;">
+        <h2 style="font-size: 20px; font-weight: 600; color: #37352f; margin-bottom: 16px;">Data & Privacy</h2>
+        
+        <div style="background: white; border: 1px solid #e9e9e7; border-radius: 8px; padding: 24px;">
+            <div style="display: grid; gap: 16px;">
+                <!-- Export Data -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f7f6f3; border-radius: 6px;">
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 600; color: #37352f; margin: 0 0 4px 0;">Export Your Data</h3>
+                        <p style="font-size: 14px; color: #787774; margin: 0;">Download all your tasks and data</p>
+                    </div>
+                    <button style="background: #f7f6f3; color: #37352f; padding: 8px 16px; border: 1px solid #e9e9e7; border-radius: 6px; font-size: 14px; cursor: pointer;">
+                        Export
+                    </button>
+                </div>
+                
+                <!-- Delete Account -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;">
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 600; color: #dc2626; margin: 0 0 4px 0;">Delete Account</h3>
+                        <p style="font-size: 14px; color: #787774; margin: 0;">Permanently delete your account and all data</p>
+                    </div>
+                    <button style="background: #dc2626; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer;">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- About -->
+    <div style="margin-bottom: 48px;">
+        <h2 style="font-size: 20px; font-weight: 600; color: #37352f; margin-bottom: 16px;">About TaskMaster</h2>
+        
+        <div style="background: white; border: 1px solid #e9e9e7; border-radius: 8px; padding: 24px;">
+            <div style="text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
+                <h3 style="font-size: 18px; font-weight: 600; color: #37352f; margin: 0 0 8px 0;">TaskMaster</h3>
+                <p style="font-size: 14px; color: #787774; margin: 0 0 16px 0;">AI-Powered Task Management</p>
+                <p style="font-size: 12px; color: #9b9b9b; margin: 0;">Version 1.0.0</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Mobile responsive adjustments -->
+<style>
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 48px 24px 0 24px !important;
+        }
+        
+        .page-title {
+            font-size: 32px !important;
+        }
+        
+        div[style*="padding: 0 96px"] {
+            padding: 0 24px 48px 24px !important;
+        }
+        
+        div[style*="grid-template-columns: 1fr 2fr"] {
+            grid-template-columns: 1fr !important;
+            gap: 8px !important;
+        }
+        
+        div[style*="display: flex; align-items: center; justify-content: space-between"] {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+        }
+    }
+    
+    /* Toggle Switch Styles */
+    input:checked + span {
+        background-color: #37352f !important;
+    }
+    
+    input:checked + span + span {
+        transform: translateX(26px) !important;
+    }
+</style>
+
+{% endblock %}

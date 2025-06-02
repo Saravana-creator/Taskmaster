@@ -1,0 +1,11 @@
+django==5.1.1
+djongo
+pymongo
+dnspython
+django-crispy-forms
+python-dotenv
+twilio  # For SMS
+pytz
+djangorestframework  # For API endpoints
+django-filter  # For advanced filtering
+django-extensions  # For development utilities

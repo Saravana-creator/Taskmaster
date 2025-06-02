@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Notion-like Page Header -->
+<div class="page-header">
+    <h1 class="page-title">📋 Dashboard</h1>
+    <p class="page-subtitle">Welcome back, {{ user.username }}! Here's your task overview.</p>
+</div>
+
+<!-- Page Content -->
+<div style="padding: 0 96px 96px 96px; max-width: 900px;">
+
+    <!-- Quick Stats - Notion style -->
+    <div style="margin-bottom: 32px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <div style="background: #f7f6f3; border: 1px solid #e9e9e7; border-radius: 6px; padding: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 16px;">📝</span>
+                    <span style="font-size: 14px; color: #787774; font-weight: 500;">Active Tasks</span>
+                </div>
+                <div style="font-size: 24px; font-weight: 600; color: #37352f;">{{ stats.total_active }}</div>
+            </div>
+
+            <div style="background: #fdf2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 16px;">⏰</span>
+                    <span style="font-size: 14px; color: #787774; font-weight: 500;">Overdue</span>
+                </div>
+                <div style="font-size: 24px; font-weight: 600; color: #dc2626;">{{ stats.overdue }}</div>
+            </div>
+
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 16px;">✅</span>
+                    <span style="font-size: 14px; color: #787774; font-weight: 500;">Completed Today</span>
+                </div>
+                <div style="font-size: 24px; font-weight: 600; color: #16a34a;">{{ stats.completed_today }}</div>
+            </div>
+
+            <div style="background: #fffbeb; border: 1px solid #fed7aa; border-radius: 6px; padding: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 16px;">⭐</span>
+                    <span style="font-size: 14px; color: #787774; font-weight: 500;">High Priority</span>
+                </div>
+                <div style="font-size: 24px; font-weight: 600; color: #d97706;">{{ stats.high_priority }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tasks Section - Notion Database Style -->
+    <div style="margin-bottom: 48px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+            <h2 style="font-size: 20px; font-weight: 600; color: #37352f; margin: 0;">Tasks</h2>
+            <a href="{% url 'add_task' %}" style="background: #37352f; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+                + New Task
+            </a>
+        </div>
+
+        {% if tasks %}
+        <!-- Notion-style Table -->
+        <div style="border: 1px solid #e9e9e7; border-radius: 6px; overflow: hidden; background: white;">
+            <!-- Table Header -->
+            <div style="background: #f7f6f3; border-bottom: 1px solid #e9e9e7; padding: 8px 12px; display: grid; grid-template-columns: 40px 1fr 120px 120px 100px 80px; gap: 12px; font-size: 14px; font-weight: 500; color: #787774;">
+                <div></div>
+                <div>Task</div>
+                <div>Priority</div>
+                <div>Due Date</div>
+                <div>Status</div>
+                <div>Actions</div>
+            </div>
+
+            <!-- Table Rows -->
+            {% for task in tasks %}
+            <div style="border-bottom: 1px solid #f1f1ef; padding: 12px; display: grid; grid-template-columns: 40px 1fr 120px 120px 100px 80px; gap: 12px; align-items: center; transition: background-color 0.15s ease;"
+                 onmouseover="this.style.backgroundColor='#f7f6f3'"
+                 onmouseout="this.style.backgroundColor='white'">
+
+                <!-- Checkbox -->
+                <div>
+                    <input type="checkbox"
+                           style="width: 16px; height: 16px; border-radius: 3px; border: 1px solid #d3d3d1;"
+                           {% if task.status == 'completed' %}checked{% endif %}
+                           onchange="window.location.href='{% url 'complete_task' task.id %}'">
+                </div>
+
+                <!-- Task Title & Description -->
+                <div>
+                    <div style="font-size: 14px; font-weight: 500; color: #37352f; margin-bottom: 2px;">
+                        {{ task.title }}
+                        {% if task.is_overdue %}
+                            <span style="background: #fecaca; color: #dc2626; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 6px;">OVERDUE</span>
+                        {% endif %}
+                    </div>
+                    {% if task.description %}
+                    <div style="font-size: 12px; color: #787774;">
+                        {{ task.description|truncatewords:10 }}
+                    </div>
+                    {% endif %}
+                    {% if task.task_list %}
+                    <div style="font-size: 11px; color: #9b9b9b; margin-top: 2px;">
+                        📁 {{ task.task_list.name }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Priority -->
+                <div>
+                    <span style="{% if task.priority == 'critical' %}background: #fecaca; color: #dc2626;{% elif task.priority == 'high' %}background: #fed7aa; color: #d97706;{% elif task.priority == 'medium' %}background: #dbeafe; color: #2563eb;{% elif task.priority == 'low' %}background: #bbf7d0; color: #16a34a;{% else %}background: #f3f4f6; color: #6b7280;{% endif %} padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">
+                        {{ task.priority|title }}
+                    </span>
+                </div>
+
+                <!-- Due Date -->
+                <div>
+                    {% if task.due_date %}
+                    <div style="font-size: 14px; color: #37352f;">{{ task.due_date|date:"M d, Y" }}</div>
+                    <div style="font-size: 12px; color: #787774;">{{ task.due_date|date:"H:i" }}</div>
+                    {% if task.days_until_due is not None %}
+                        {% if task.days_until_due < 0 %}
+                            <div style="font-size: 11px; color: #dc2626; font-weight: 500;">Overdue</div>
+                        {% elif task.days_until_due == 0 %}
+                            <div style="font-size: 11px; color: #d97706; font-weight: 500;">Due today</div>
+                        {% elif task.days_until_due <= 3 %}
+                            <div style="font-size: 11px; color: #d97706; font-weight: 500;">{{ task.days_until_due }} days left</div>
+                        {% endif %}
+                    {% endif %}
+                    {% else %}
+                    <span style="color: #9b9b9b; font-size: 14px;">No date</span>
+                    {% endif %}
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <span style="{% if task.status == 'pending' %}background: #f3f4f6; color: #6b7280;{% elif task.status == 'in_progress' %}background: #dbeafe; color: #2563eb;{% elif task.status == 'on_hold' %}background: #fed7aa; color: #d97706;{% elif task.status == 'completed' %}background: #bbf7d0; color: #16a34a;{% else %}background: #f3f4f6; color: #6b7280;{% endif %} padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">
+                        {{ task.status|title }}
+                    </span>
+                </div>
+
+                <!-- Actions -->
+                <div style="display: flex; gap: 4px;">
+                    <a href="{% url 'edit_task' task.id %}"
+                       style="padding: 4px 8px; border-radius: 4px; background: #f7f6f3; color: #37352f; text-decoration: none; font-size: 12px; border: 1px solid #e9e9e7;"
+                       onmouseover="this.style.backgroundColor='#e9e9e7'"
+                       onmouseout="this.style.backgroundColor='#f7f6f3'">
+                        Edit
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <!-- Empty State -->
+        <div style="text-align: center; padding: 64px 32px; border: 1px solid #e9e9e7; border-radius: 6px; background: #fafafa;">
+            <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
+            <h3 style="font-size: 18px; font-weight: 600; color: #37352f; margin-bottom: 8px;">No tasks yet</h3>
+            <p style="font-size: 14px; color: #787774; margin-bottom: 24px;">Create your first task to get started with your productivity journey.</p>
+            <a href="{% url 'add_task' %}" style="background: #37352f; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+                + Add Task
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Recently Completed Section -->
+    {% if completed_tasks %}
+    <div style="margin-bottom: 48px;">
+        <h2 style="font-size: 20px; font-weight: 600; color: #37352f; margin-bottom: 16px;">Recently Completed</h2>
+
+        <div style="border: 1px solid #e9e9e7; border-radius: 6px; background: white; padding: 16px;">
+            <div style="display: grid; gap: 8px;">
+                {% for task in completed_tasks %}
+                <div style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 4px; background: #f0fdf4;">
+                    <div style="color: #16a34a; font-size: 16px;">✅</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 14px; font-weight: 500; color: #37352f;">{{ task.title }}</div>
+                        <div style="font-size: 12px; color: #787774;">Completed {{ task.due_date|date:"M d" }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Mobile responsive adjustments -->
+<style>
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 48px 24px 0 24px !important;
+        }
+
+        .page-title {
+            font-size: 32px !important;
+        }
+
+        div[style*="padding: 0 96px"] {
+            padding: 0 24px 48px 24px !important;
+        }
+
+        div[style*="grid-template-columns: 40px 1fr 120px 120px 100px 80px"] {
+            grid-template-columns: 30px 1fr 80px 60px !important;
+        }
+
+        div[style*="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))"] {
+            grid-template-columns: 1fr 1fr !important;
+        }
+    }
+</style>
+
+{% endblock %}

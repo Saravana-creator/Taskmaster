@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Notion-like Page Header -->
+<div class="page-header">
+    <h1 class="page-title">📅 Calendar</h1>
+    <p class="page-subtitle">View your tasks organized by due dates.</p>
+</div>
+
+<!-- Page Content -->
+<div style="padding: 0 96px 96px 96px; max-width: 900px;">
+    
+    <!-- Quick Actions -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px;">
+        <div style="display: flex; gap: 12px;">
+            <a href="{% url 'add_task' %}" style="background: #37352f; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+                + New Task
+            </a>
+            <a href="{% url 'all_tasks' %}" style="background: #f7f6f3; color: #37352f; padding: 8px 16px; border: 1px solid #e9e9e7; border-radius: 6px; text-decoration: none; font-size: 14px;">
+                View All Tasks
+            </a>
+        </div>
+    </div>
+    
+    <!-- Calendar View -->
+    <div style="margin-bottom: 48px;">
+        <h2 style="font-size: 20px; font-weight: 600; color: #37352f; margin-bottom: 16px;">Upcoming Tasks</h2>
+        
+        {% if tasks %}
+        <!-- Tasks grouped by date -->
+        <div style="display: grid; gap: 16px;">
+            {% regroup tasks by due_date.date as tasks_by_date %}
+            {% for date_group in tasks_by_date %}
+            <div style="border: 1px solid #e9e9e7; border-radius: 8px; background: white; overflow: hidden;">
+                <!-- Date Header -->
+                <div style="background: #f7f6f3; padding: 12px 16px; border-bottom: 1px solid #e9e9e7;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: #37352f; margin: 0;">
+                            {% if date_group.grouper == today %}
+                                🔥 Today - {{ date_group.grouper|date:"F d, Y" }}
+                            {% elif date_group.grouper == tomorrow %}
+                                ⏰ Tomorrow - {{ date_group.grouper|date:"F d, Y" }}
+                            {% else %}
+                                📅 {{ date_group.grouper|date:"F d, Y" }}
+                            {% endif %}
+                        </h3>
+                        <span style="background: #e9e9e7; color: #37352f; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">
+                            {{ date_group.list|length }} task{{ date_group.list|length|pluralize }}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Tasks for this date -->
+                <div style="padding: 0;">
+                    {% for task in date_group.list %}
+                    <div style="padding: 12px 16px; border-bottom: 1px solid #f1f1ef; display: flex; align-items: center; gap: 12px; transition: background-color 0.15s ease;"
+                         onmouseover="this.style.backgroundColor='#f7f6f3'"
+                         onmouseout="this.style.backgroundColor='white'">
+                        
+                        <!-- Checkbox -->
+                        <input type="checkbox" 
+                               style="width: 16px; height: 16px; border-radius: 3px; border: 1px solid #d3d3d1;"
+                               {% if task.status == 'completed' %}checked{% endif %}
+                               onchange="window.location.href='{% url 'complete_task' task.id %}'">
+                        
+                        <!-- Task Info -->
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <span style="font-size: 14px; font-weight: 500; color: #37352f;">{{ task.title }}</span>
+                                
+                                <!-- Priority Badge -->
+                                <span style="{% if task.priority == 'critical' %}background: #fecaca; color: #dc2626;{% elif task.priority == 'high' %}background: #fed7aa; color: #d97706;{% elif task.priority == 'medium' %}background: #dbeafe; color: #2563eb;{% elif task.priority == 'low' %}background: #bbf7d0; color: #16a34a;{% else %}background: #f3f4f6; color: #6b7280;{% endif %} padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: 500;">
+                                    {{ task.priority|title }}
+                                </span>
+                                
+                                <!-- Status Badge -->
+                                <span style="{% if task.status == 'pending' %}background: #f3f4f6; color: #6b7280;{% elif task.status == 'in_progress' %}background: #dbeafe; color: #2563eb;{% elif task.status == 'on_hold' %}background: #fed7aa; color: #d97706;{% elif task.status == 'completed' %}background: #bbf7d0; color: #16a34a;{% else %}background: #f3f4f6; color: #6b7280;{% endif %} padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: 500;">
+                                    {{ task.status|title }}
+                                </span>
+                                
+                                {% if task.is_overdue %}
+                                <span style="background: #fecaca; color: #dc2626; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: 600;">OVERDUE</span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if task.description %}
+                            <div style="font-size: 12px; color: #787774; margin-bottom: 4px;">
+                                {{ task.description|truncatewords:15 }}
+                            </div>
+                            {% endif %}
+                            
+                            <div style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #9b9b9b;">
+                                <span>⏰ {{ task.due_date|date:"H:i" }}</span>
+                                {% if task.task_list %}
+                                <span>📁 {{ task.task_list.name }}</span>
+                                {% endif %}
+                                {% if task.estimated_hours %}
+                                <span>⏱️ {{ task.estimated_hours }}h estimated</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div style="display: flex; gap: 4px;">
+                            <a href="{% url 'edit_task' task.id %}" 
+                               style="padding: 4px 8px; border-radius: 4px; background: #f7f6f3; color: #37352f; text-decoration: none; font-size: 12px; border: 1px solid #e9e9e7;"
+                               onmouseover="this.style.backgroundColor='#e9e9e7'"
+                               onmouseout="this.style.backgroundColor='#f7f6f3'">
+                                Edit
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% else %}
+        <!-- Empty State -->
+        <div style="text-align: center; padding: 64px 32px; border: 1px solid #e9e9e7; border-radius: 6px; background: #fafafa;">
+            <div style="font-size: 48px; margin-bottom: 16px;">📅</div>
+            <h3 style="font-size: 18px; font-weight: 600; color: #37352f; margin-bottom: 8px;">No scheduled tasks</h3>
+            <p style="font-size: 14px; color: #787774; margin-bottom: 24px;">Add due dates to your tasks to see them in the calendar view.</p>
+            <a href="{% url 'add_task' %}" style="background: #37352f; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+                + Add Task with Due Date
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Quick Stats -->
+    <div style="margin-bottom: 48px;">
+        <h2 style="font-size: 20px; font-weight: 600; color: #37352f; margin-bottom: 16px;">Quick Overview</h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <div style="background: #fdf2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 16px;">⏰</span>
+                    <span style="font-size: 14px; color: #787774; font-weight: 500;">Due Today</span>
+                </div>
+                <div style="font-size: 24px; font-weight: 600; color: #dc2626;">
+                    {{ tasks|length }}
+                </div>
+            </div>
+            
+            <div style="background: #fffbeb; border: 1px solid #fed7aa; border-radius: 6px; padding: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 16px;">📅</span>
+                    <span style="font-size: 14px; color: #787774; font-weight: 500;">This Week</span>
+                </div>
+                <div style="font-size: 24px; font-weight: 600; color: #d97706;">
+                    {{ tasks|length }}
+                </div>
+            </div>
+            
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 16px;">✅</span>
+                    <span style="font-size: 14px; color: #787774; font-weight: 500;">Completed</span>
+                </div>
+                <div style="font-size: 24px; font-weight: 600; color: #16a34a;">
+                    {% for task in tasks %}{% if task.status == 'completed' %}{{ forloop.counter0|add:1 }}{% endif %}{% empty %}0{% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Mobile responsive adjustments -->
+<style>
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 48px 24px 0 24px !important;
+        }
+        
+        .page-title {
+            font-size: 32px !important;
+        }
+        
+        div[style*="padding: 0 96px"] {
+            padding: 0 24px 48px 24px !important;
+        }
+        
+        div[style*="display: flex; align-items: center; justify-content: space-between"] {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+        }
+        
+        div[style*="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+{% endblock %}
